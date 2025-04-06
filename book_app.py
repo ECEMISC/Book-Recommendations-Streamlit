@@ -317,12 +317,12 @@ elif page == "Topic Modeling Recommender":
     dictionary = corpora.Dictionary(texts)
     corpus = [dictionary.doc2bow(text) for text in texts]
 
-    lda_model = LdaModel(corpus=corpus, id2word=dictionary, num_topics=10, random_state=42, passes=10, alpha='auto')
+    lda_model = LdaModel(corpus=corpus, id2word=dictionary, num_topics=5, random_state=42, passes=10, alpha='auto')
 
     def extract_keywords(topic_str):
         return ", ".join([word.split("*")[-1].replace('"', "").strip() for word in topic_str.split("+")])
 
-    topic_descriptions = {idx: extract_keywords(topic) for idx, topic in lda_model.print_topics(num_words=8)}
+    topic_descriptions = {idx: extract_keywords(topic) for idx, topic in lda_model.print_topics(num_words=12)}
 
     def get_dominant_topic(ldamodel, corpus):
         dominant_topics = []
