@@ -290,7 +290,7 @@ elif page == "Personalised Recommender System":
 # Page 3: Topic Modeling Recommender
 
 elif page == "Topic Modeling Recommender":
-    st.title("🧠 Topic Modeling-Based Book Recommender")
+    st.title("LDA-Based Book Recommender")
 
     from langdetect import detect, LangDetectException
     stop_words = set(stopwords.words('english'))
