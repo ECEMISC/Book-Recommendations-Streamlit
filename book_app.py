@@ -1,20 +1,10 @@
 import streamlit as st
 import pandas as pd
 import re
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from langdetect import detect, LangDetectException
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from gensim import corpora
-from gensim.models.ldamodel import LdaModel
 import warnings
+import base64
 import matplotlib.pyplot as plt
 import seaborn as sns
-import streamlit as st
-import pandas as pd
-import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from langdetect import detect, LangDetectException
@@ -24,35 +14,31 @@ from nltk.stem import WordNetLemmatizer
 from gensim import corpora
 from gensim.models.ldamodel import LdaModel
 import pyLDAvis
-import streamlit.components.v1 as components
-import warnings
 import pyLDAvis.gensim as gensimvis
-
+import streamlit.components.v1 as components
+import base64
 warnings.filterwarnings('ignore')
-
 nltk.download('stopwords')
 nltk.download('wordnet')
-import streamlit as st
-import base64
 
 
 
-# Ana sayfa arka plan rengini turuncu yapmak için CSS
+
+# CSS to make the home page background color orange
 st.markdown(
     """
     <style>
     .stApp {
-        background-color: #FFA500; /* Turuncu renk */
+        background-color: #FFA500; /* orange */
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Sidebar'a görsel ekle
+# Add image to Sidebar
 st.sidebar.image("amazon_logo.JPG", use_column_width=True)
 
-import streamlit as st
 
 # CSS ile sidebar rengini değiştirme
 st.markdown(
@@ -92,7 +78,7 @@ def load_data():
 
 df = load_data()
 
-# Görselleştirme ayarları
+# Visualisation settings
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 500)
 pd.set_option('display.expand_frame_repr', False)
@@ -309,7 +295,7 @@ elif page == "Topic Modeling Recommender":
         words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words and len(word) > 2]
         return words
 
-    # 1. Topic modeling için kullanıcı yorumlarını al
+    # 1. Get user reviews for Topic modeling
     df_comments = df[df['review/text'].apply(is_english)].copy()
     df_comments['tokens'] = df_comments['review/text'].fillna('').apply(preprocess)
 
@@ -334,10 +320,10 @@ elif page == "Topic Modeling Recommender":
 
     df_comments['dominant_topic'] = get_dominant_topic(lda_model, corpus)
 
-    # Her kullanıcı için dominant topic hesapla
+    # Calculate dominant topic for each user
     user_topics = df_comments.groupby('User_id')['dominant_topic'].value_counts().unstack(fill_value=0)
 
-    # 2. Kitap açıklamalarını işle
+    # 2. Process book descriptions
     df_books = df[df['description'].apply(is_english)].copy()
     df_books['tokens'] = df_books['description'].fillna('').apply(preprocess)
 
@@ -349,7 +335,7 @@ elif page == "Topic Modeling Recommender":
     books_with_topic = df_books[['Title', 'description', 'book_topic']].drop_duplicates(subset='Title')
 
 
-    # 3. Kullanıcının topic'ine göre kitap öner
+    # 3. Recommend a book according to the user's topic
     def recommend_books_by_topic(user_id, user_topics, books_with_topic, top_n=5):
         if user_id not in user_topics.index:
             return pd.DataFrame([{"Message": f"No topic data found for user {user_id}."}]), None
@@ -360,7 +346,7 @@ elif page == "Topic Modeling Recommender":
         return recommendations, dominant_topic
 
 
-    # 4. Arayüz: kullanıcı ID girişi
+    # 4. Interface: user ID login
     user_id_topic = st.text_input("Enter your User ID to get topic-based recommendations:")
     if user_id_topic:
         topic_recs, top_topic = recommend_books_by_topic(user_id_topic, user_topics, books_with_topic)
@@ -398,7 +384,7 @@ elif page == "Topic Modeling Recommender":
             st.markdown(html_table, unsafe_allow_html=True)
 
 
-        # 5. Öneri gösterimi (description gösteriliyor, ama model topic'i yorumlardan çıkardı)
+        # 5. Suggestion display (description is showing, but the model removed the topic from comments)
         if not topic_recs.empty and "Message" not in topic_recs.columns:
             for _, row in topic_recs.iterrows():
                 st.markdown(f"### 📖 {row['Title'].title()}")
@@ -415,7 +401,7 @@ elif page == "Topic Modeling Recommender":
         else:
             render_html_table(topic_recs)
 
-        # 5. Öneri gösterimi: description'la birlikte
+        # 5. Suggestion display: with description
         if not topic_recs.empty and "Message" not in topic_recs.columns:
             for _, row in topic_recs.iterrows():
                 st.markdown(f"### 📖 {row['Title'].title()}")
