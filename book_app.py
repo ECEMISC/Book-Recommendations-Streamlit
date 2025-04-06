@@ -82,7 +82,7 @@ st.markdown("""
 
 st.sidebar.title("Recommender Options")
 
-page = st.sidebar.radio("Choose a method:", ["Content-Based Recommender", "Personalised Recommender System", "Topic Modeling Recommender", "Topic Modeling Visualizer"])
+page = st.sidebar.radio("Choose a method:", ["Content-Based Recommender", "Personalised Recommender System", "Topic Modeling Recommender"])
 
 # Load and prepare data
 @st.cache_data
